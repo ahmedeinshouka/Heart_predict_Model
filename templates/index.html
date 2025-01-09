@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Disease Prediction</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      transition: background-color 0.5s ease;
+      padding-top: 50px; /* To avoid overlap with fixed header */
+      flex-direction: column;
+    }
+
+    /* Header bar */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      z-index: 1000;
+    }
+
+    .header a {
+      color: white;
+      text-decoration: none;
+      padding: 0 10px;
+    }
+
+    .header a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row; /* Align form and result side by side */
+      justify-content: space-between;
+      width: 90%;
+      max-width: 1200px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+      padding: 20px;
+      margin-top: 60px; /* To make room for the header */
+    }
+
+    .form-section {
+      flex: 1;
+      padding: 20px;
+      margin-right: 20px;
+      overflow-y: auto; /* Enable scrolling for form */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .result-section {
+      flex: 1;
+      display: none; /* Initially hidden */
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result img {
+      max-width: 300px;
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #result h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .description {
+      font-size: 1.1rem;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8f8f8;
+      border-radius: 6px;
+      text-align: left;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    td {
+      background-color: #f9f9f9;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      .form-section, .result-section {
+        margin-right: 0;
+      }
+    }
+
+    .copyright {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 1rem;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Bar -->
+  <div class="header">
+    <span>Contact me: <a href="mailto:your.email@example.com">your.email@example.com</a> | <a href="tel:+1234567890">+1234567890</a></span>
+  </div>
+
+  <div class="container">
+    <!-- Form Section -->
+    <div class="form-section">
+      <h1>Heart Disease Prediction</h1>
+      <form id="predictionForm">
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="1" max="120" required>
+        
+        <label for="sex">Sex (0 = female, 1 = male):</label>
+        <input type="number" id="sex" name="sex" min="0" max="1" required>
+        
+        <label for="cp">Chest Pain Type (0-3):</label>
+        <input type="number" id="cp" name="cp" min="0" max="3" required>
+        
+        <label for="trestbps">Resting Blood Pressure:</label>
+        <input type="number" id="trestbps" name="trestbps" min="50" max="250" required>
+        
+        <label for="chol">Cholesterol:</label>
+        <input type="number" id="chol" name="chol" min="100" max="600" required>
+        
+        <label for="fbs">Fasting Blood Sugar (0 = false, 1 = true):</label>
+        <input type="number" id="fbs" name="fbs" min="0" max="1" required>
+        
+        <label for="restecg">Resting ECG (0-2):</label>
+        <input type="number" id="restecg" name="restecg" min="0" max="2" required>
+        
+        <label for="thalach">Max Heart Rate:</label>
+        <input type="number" id="thalach" name="thalach" min="60" max="220" required>
+        
+        <label for="exang">Exercise-Induced Angina (0 = no, 1 = yes):</label>
+        <input type="number" id="exang" name="exang" min="0" max="1" required>
+        
+        <label for="oldpeak">ST Depression:</label>
+        <input type="number" step="0.1" id="oldpeak" name="oldpeak" min="0" max="10" required>
+        
+        <label for="slope">Slope (0-2):</label>
+        <input type="number" id="slope" name="slope" min="0" max="2" required>
+        
+        <label for="ca">Number of Major Vessels (0-3):</label>
+        <input type="number" id="ca" name="ca" min="0" max="3" required>
+        
+        <label for="thal">Thal (1 = normal, 2 = fixed defect, 3 = reversible defect):</label>
+        <input type="number" id="thal" name="thal" min="1" max="3" required>
+        
+        <button type="submit">Predict</button>
+      </form>
+    </div>
+
+    <!-- Result Section -->
+    <div class="result-section" aria-live="polite">
+      <div id="result">
+        <h2>Checking your heart...</h2>
+        <img src="assets/Animation - 1736336478133.gif" alt="Checking your heart" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Copyright Footer -->
+  <div class="copyright">
+    <p>&copy; 2025 Heart Disease Prediction. All rights reserved.</p>
+  </div>
+
+  <script>
+    document.getElementById('predictionForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Show the gif while waiting for prediction
+      const resultSection = document.querySelector('.result-section');
+      resultSection.style.display = 'flex';
+
+      const formData = new FormData(event.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = parseFloat(value));
+
+      fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.json())
+        .then(result => {
+          const resultElement = document.getElementById('result');
+          resultElement.innerHTML = ''; // Clear previous content
+
+          const predictionText = result.prediction === 1 ? 'Sick' : 'Not Sick';
+          resultElement.innerHTML = `<h2>Prediction: ${predictionText}</h2>`;
+          
+          const img = document.createElement('img');
+          img.src = result.prediction === 1 
+            ? 'assets/Animation - 1736336184626.gif' 
+            : 'assets/Animation - 1736336478133.gif';
+          img.alt = predictionText;
+          resultElement.appendChild(img);
+
+          // Display health advice
+          const description = document.createElement('div');
+          description.className = 'description';
+          description.innerHTML = predictionText === 'Sick'
+            ? `<p>If you are feeling unwell or suspect any symptoms related to heart disease (such as chest pain, difficulty breathing, dizziness), it is critical to seek medical attention immediately. Please consult with a healthcare provider for further diagnosis and treatment.</p>`
+            : `<p>Your heart appears to be in good health, but remember to maintain a healthy lifestyle with regular check-ups and a balanced diet.</p>`;
+
+          // Add the table with best ranges below recommendations
+          const table = document.createElement('table');
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Recommended Range</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Age</td><td>20-80</td></tr>
+              <tr><td>Sex</td><td>0 = Female, 1 = Male</td></tr>
+              <tr><td>Cholesterol</td><td>150-200</td></tr>
+              <tr><td>Max Heart Rate</td><td>60-220</td></tr>
+              <tr><td>Blood Pressure</td><td>120/80</td></tr>
+            </tbody>
+          `;
+          description.appendChild(table);
+
+          resultElement.appendChild(description);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred. Please try again later.');
+        });
+    });
+  </script>
+</body>
+</html>
