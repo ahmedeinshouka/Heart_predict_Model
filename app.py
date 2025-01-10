@@ -34,28 +34,33 @@ def predict():
     try:
         # Get input data from request
         data = request.get_json()
-        expected_features = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 
-                             'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 
-                             'ca', 'thal']
-        
+        app.logger.debug(f"Received data: {data}")
+
         # Validate input data
         if not isinstance(data, dict):
             raise ValueError("Input data should be a dictionary")
-        if len(data) != len(expected_features):
-            raise ValueError(f"Input data should contain 13 features, but got {len(data)}.")
-        if not all(feature in data for feature in expected_features):
-            missing_features = [feature for feature in expected_features if feature not in data]
-            raise ValueError(f"Input data is missing the following features: {missing_features}")
         
-        # Convert data into numpy array
-        input_data = np.array([data[feature] for feature in expected_features]).reshape(1, -1)
+        # Check if 'data' key exists and is a comma-separated string
+        if 'data' not in data:
+            raise ValueError("Input data must contain a 'data' key with a comma-separated string of feature values.")
+        
+        # Split the comma-separated string into a list of values
+        feature_values = data['data'].split(',')
+        app.logger.debug(f"Feature values: {feature_values}")
+
+        # Ensure there are exactly 13 feature values
+        if len(feature_values) != 13:
+            raise ValueError(f"Input data should contain 13 features, but got {len(feature_values)}.")
+
+        # Convert feature values to floats
+        input_data = np.array([float(value) for value in feature_values]).reshape(1, -1)
         app.logger.debug(f"Input data for prediction: {input_data}")
-        
+
         # Make prediction
         if model is not None:
             prediction = model.predict(input_data)
             app.logger.debug(f"Prediction: {prediction}")
-            
+
             # Return prediction result
             return jsonify({'prediction': int(prediction[0])})
         else:

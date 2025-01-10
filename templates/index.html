@@ -96,12 +96,13 @@
       margin-bottom: 5px;
     }
 
-    input {
+    input, select {
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 1rem;
       width: 100%;
+      transition: all 0.3s ease; /* Smooth transition for input changes */
     }
 
     button {
@@ -184,6 +185,40 @@
       font-size: 1rem;
       z-index: 1000;
     }
+
+    /* Logo styling */
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      max-width: 600px;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Warning message for sick case */
+    .warning {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .warning a {
+      color: red;
+      text-decoration: underline;
+    }
+
+    /* Reset button styling */
+    .reset-button {
+      background-color: #ff4d4d;
+      margin-top: 10px;
+    }
+
+    .reset-button:hover {
+      background-color: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -195,16 +230,30 @@
   <div class="container">
     <!-- Form Section -->
     <div class="form-section">
+      <!-- Logo Section -->
+      <div class="logo-container">
+        <img src="assets/logo.png" alt="Ein.shouka Logo" class="logo" />
+      </div>
+
       <h1>Heart Disease Prediction</h1>
       <form id="predictionForm">
+        <!-- Form Fields -->
         <label for="age">Age:</label>
         <input type="number" id="age" name="age" min="1" max="120" required>
         
-        <label for="sex">Sex (0 = female, 1 = male):</label>
-        <input type="number" id="sex" name="sex" min="0" max="1" required>
+        <label for="sex">Sex:</label>
+        <select id="sex" name="sex" required>
+          <option value="0">Female</option>
+          <option value="1">Male</option>
+        </select>
         
-        <label for="cp">Chest Pain Type (0-3):</label>
-        <input type="number" id="cp" name="cp" min="0" max="3" required>
+        <label for="cp">Chest Pain Type:</label>
+        <select id="cp" name="cp" required>
+          <option value="0">Typical Angina</option>
+          <option value="1">Atypical Angina</option>
+          <option value="2">Non-Anginal Pain</option>
+          <option value="3">Asymptomatic</option>
+        </select>
         
         <label for="trestbps">Resting Blood Pressure:</label>
         <input type="number" id="trestbps" name="trestbps" min="50" max="250" required>
@@ -212,31 +261,50 @@
         <label for="chol">Cholesterol:</label>
         <input type="number" id="chol" name="chol" min="100" max="600" required>
         
-        <label for="fbs">Fasting Blood Sugar (0 = false, 1 = true):</label>
-        <input type="number" id="fbs" name="fbs" min="0" max="1" required>
+        <label for="fbs">Fasting Blood Sugar:</label>
+        <select id="fbs" name="fbs" required>
+          <option value="0">False</option>
+          <option value="1">True</option>
+        </select>
         
-        <label for="restecg">Resting ECG (0-2):</label>
-        <input type="number" id="restecg" name="restecg" min="0" max="2" required>
+        <label for="restecg">Resting ECG:</label>
+        <select id="restecg" name="restecg" required>
+          <option value="0">Normal</option>
+          <option value="1">ST-T Wave Abnormality</option>
+          <option value="2">Left Ventricular Hypertrophy</option>
+        </select>
         
         <label for="thalach">Max Heart Rate:</label>
         <input type="number" id="thalach" name="thalach" min="60" max="220" required>
         
-        <label for="exang">Exercise-Induced Angina (0 = no, 1 = yes):</label>
-        <input type="number" id="exang" name="exang" min="0" max="1" required>
+        <label for="exang">Exercise-Induced Angina:</label>
+        <select id="exang" name="exang" required>
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
         
         <label for="oldpeak">ST Depression:</label>
         <input type="number" step="0.1" id="oldpeak" name="oldpeak" min="0" max="10" required>
         
-        <label for="slope">Slope (0-2):</label>
-        <input type="number" id="slope" name="slope" min="0" max="2" required>
+        <label for="slope">Slope:</label>
+        <select id="slope" name="slope" required>
+          <option value="0">Upsloping</option>
+          <option value="1">Flat</option>
+          <option value="2">Downsloping</option>
+        </select>
         
         <label for="ca">Number of Major Vessels (0-3):</label>
         <input type="number" id="ca" name="ca" min="0" max="3" required>
         
-        <label for="thal">Thal (1 = normal, 2 = fixed defect, 3 = reversible defect):</label>
-        <input type="number" id="thal" name="thal" min="1" max="3" required>
+        <label for="thal">Thal:</label>
+        <select id="thal" name="thal" required>
+          <option value="1">Normal</option>
+          <option value="2">Fixed Defect</option>
+          <option value="3">Reversible Defect</option>
+        </select>
         
         <button type="submit">Predict</button>
+        <button type="button" class="reset-button" onclick="resetForm()">Reset</button>
       </form>
     </div>
 
@@ -262,36 +330,67 @@
       const resultSection = document.querySelector('.result-section');
       resultSection.style.display = 'flex';
 
+      // Collect form data
       const formData = new FormData(event.target);
       const data = {};
       formData.forEach((value, key) => data[key] = parseFloat(value));
 
+      // Format the data as a comma-separated string
+      const formattedData = [
+        data.age,
+        data.sex,
+        data.cp,
+        data.trestbps,
+        data.chol,
+        data.fbs,
+        data.restecg,
+        data.thalach,
+        data.exang,
+        data.oldpeak,
+        data.slope,
+        data.ca,
+        data.thal
+      ].join(',');
+
+      // Send the data to the backend via POST
       fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ data: formattedData }), // Send data in the expected format
       })
         .then(response => response.json())
         .then(result => {
+          console.log('Backend Response:', result); // Debugging line
+
           const resultElement = document.getElementById('result');
           resultElement.innerHTML = ''; // Clear previous content
 
+          // Ensure the prediction value is correctly interpreted
           const predictionText = result.prediction === 1 ? 'Sick' : 'Not Sick';
+          console.log('Prediction:', predictionText); // Debugging line
+
           resultElement.innerHTML = `<h2>Prediction: ${predictionText}</h2>`;
           
           const img = document.createElement('img');
           img.src = result.prediction === 1 
-            ? 'assets/Animation - 1736336184626.gif' 
-            : 'assets/Animation - 1736336478133.gif';
+            ? 'assets/Animation - 1736336184626.gif' // Sick GIF
+            : 'assets/Animation - 1736336478133.gif'; // Not Sick GIF
           img.alt = predictionText;
           resultElement.appendChild(img);
 
           // Display health advice
           const description = document.createElement('div');
           description.className = 'description';
-          description.innerHTML = predictionText === 'Sick'
-            ? `<p>If you are feeling unwell or suspect any symptoms related to heart disease (such as chest pain, difficulty breathing, dizziness), it is critical to seek medical attention immediately. Please consult with a healthcare provider for further diagnosis and treatment.</p>`
-            : `<p>Your heart appears to be in good health, but remember to maintain a healthy lifestyle with regular check-ups and a balanced diet.</p>`;
+          if (predictionText === 'Sick') {
+            description.innerHTML = `
+              <div class="warning">
+                <p>⚠️ <strong>Warning:</strong> If you are feeling unwell or suspect any symptoms related to heart disease (such as chest pain, difficulty breathing, dizziness), it is critical to seek medical attention immediately. Please consult with a healthcare provider for further diagnosis and treatment.</p>
+                <p>🚨 <a href="tel:911">Call Emergency Services</a> if you are experiencing severe symptoms.</p>
+              </div>
+            `;
+          } else {
+            description.innerHTML = `<p>Your heart appears to be in good health, but remember to maintain a healthy lifestyle with regular check-ups and a balanced diet.</p>`;
+          }
 
           // Add the table with best ranges below recommendations
           const table = document.createElement('table');
@@ -313,12 +412,45 @@
           description.appendChild(table);
 
           resultElement.appendChild(description);
+
+          // Change background color and enhance inputs if prediction is "Sick"
+          if (predictionText === 'Sick') {
+            document.body.style.backgroundColor = '#880808'; // blood red background
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+              input.style.border = '2px solid red';
+              input.style.fontWeight = 'bold';
+              input.style.backgroundColor = '#880808'; // blood red input background
+            });
+          } else {
+            // Reset styles if prediction is "Not Sick"
+            document.body.style.backgroundColor = '#f4f4f9'; // Original background
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+              input.style.border = '1px solid #ccc';
+              input.style.fontWeight = 'normal';
+              input.style.backgroundColor = '#fff'; // Original input background
+            });
+          }
         })
         .catch(error => {
           console.error('Error:', error);
           alert('An error occurred. Please try again later.');
         });
     });
+
+    // Reset form function
+    function resetForm() {
+      document.getElementById('predictionForm').reset();
+      document.querySelector('.result-section').style.display = 'none';
+      document.body.style.backgroundColor = '#f4f4f9'; // Reset background color
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.style.border = '1px solid #ccc';
+        input.style.fontWeight = 'normal';
+        input.style.backgroundColor = '#fff'; // Reset input styles
+      });
+    }
   </script>
 </body>
 </html>
